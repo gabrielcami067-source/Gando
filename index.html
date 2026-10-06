@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control de Terneros</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f2ec;color:#302820;font-family:Arial,sans-serif}
+header{background:#5b3a1e;color:white;padding:18px;text-align:center}header h1{margin:0;font-size:23px}
+nav{display:flex;background:white;padding:9px;gap:7px;overflow:auto;position:sticky;top:0;z-index:5}
+nav button{border:0;padding:10px 13px;border-radius:8px;font-weight:bold;white-space:nowrap}
+nav button.active{background:#d9a441;color:white}
+main{max-width:1000px;margin:auto;padding:15px}.page{display:none}.page.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.card{background:white;border-radius:12px;padding:15px;box-shadow:0 2px 7px #0001}.card small{color:#777}.card b{display:block;font-size:23px;margin-top:7px}
+form{background:white;padding:15px;border-radius:12px;margin:12px 0;box-shadow:0 2px 7px #0001}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:11px}
+label{font-size:13px;font-weight:bold}input,select{width:100%;padding:10px;margin-top:5px;border:1px solid #ccc;border-radius:7px}
+.primary{margin-top:12px;padding:11px 16px;background:#5b3a1e;color:white;border:0;border-radius:7px;font-weight:bold}
+.tablebox{overflow:auto;background:white;border-radius:10px}table{border-collapse:collapse;width:100%;min-width:720px}th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left;font-size:13px}th{background:#5b3a1e;color:white}
+h2{margin-bottom:8px}.note{background:#fff7dd;padding:12px;border-radius:9px;margin:10px 0}
+.del{border:0;background:#eee;padding:6px;border-radius:5px}
+</style>
+</head>
+<body>
+<header><h1>🐄 CONTROL DE TERNEROS</h1><div>Compra • Engorde • Venta</div></header>
+<nav>
+<button class="active" onclick="go('inicio',this)">📊 Resumen</button>
+<button onclick="go('terneros',this)">🐄 Terneros</button>
+<button onclick="go('gastos',this)">💸 Gastos</button>
+<button onclick="go('ventas',this)">💰 Ventas</button>
+</nav>
+<main>
+
+<section id="inicio" class="page active">
+<h2>Resumen del negocio</h2>
+<div class="cards">
+<div class="card"><small>Terneros registrados</small><b id="nTotal">0 / 10</b></div>
+<div class="card"><small>En engorde</small><b id="nEngorde">0</b></div>
+<div class="card"><small>Vendidos</small><b id="nVendidos">0</b></div>
+<div class="card"><small>Compras</small><b id="totalCompras">Bs 0</b></div>
+<div class="card"><small>Gastos de engorde</small><b id="totalGastos">Bs 0</b></div>
+<div class="card"><small>Ventas</small><b id="totalVentas">Bs 0</b></div>
+<div class="card"><small>Resultado</small><b id="resultado">Bs 0</b></div>
+</div>
+<div class="note">💡 El sistema está pensado para un máximo de <b>10 terneros</b>. Registra cada ternero una sola vez y luego agrega sus gastos y venta.</div>
+</section>
+
+<section id="terneros" class="page">
+<h2>Mis 10 terneros</h2>
+<form id="fTernero">
+<div class="grid">
+<label>N.º<input name="numero" type="number" min="1" max="10" required placeholder="1 al 10"></label>
+<label>Nombre / identificación<input name="nombre" required placeholder="Ej. Ternero 1"></label>
+<label>Fecha de compra<input name="fecha" type="date" required></label>
+<label>Peso de compra (kg)<input name="peso" type="number" step="0.01" required></label>
+<label>Precio de compra (Bs)<input name="costo" type="number" step="0.01" required></label>
+<label>Estado<select name="estado"><option>En engorde</option><option>Vendido</option></select></label>
+</div>
+<button class="primary">Guardar ternero</button>
+</form>
+<div class="tablebox"><table><thead><tr><th>N.º</th><th>Identificación</th><th>Fecha</th><th>Peso</th><th>Compra</th><th>Estado</th><th></th></tr></thead><tbody id="tTerneros"></tbody></table></div>
+</section>
+
+<section id="gastos" class="page">
+<h2>Gastos de engorde</h2>
+<form id="fGasto">
+<div class="grid">
+<label>Fecha<input name="fecha" type="date" required></label>
+<label>Ternero N.º<select name="numero" id="selGasto"></select></label>
+<label>Tipo de gasto<select name="tipo"><option>Alimento</option><option>Veterinaria</option><option>Medicamento</option><option>Transporte</option><option>Otros</option></select></label>
+<label>Descripción<input name="desc" placeholder="Ej. Balanceado"></label>
+<label>Monto (Bs)<input name="monto" type="number" step="0.01" required></label>
+</div>
+<button class="primary">Guardar gasto</button>
+</form>
+<div class="tablebox"><table><thead><tr><th>Fecha</th><th>Ternero</th><th>Tipo</th><th>Descripción</th><th>Monto</th><th></th></tr></thead><tbody id="tGastos"></tbody></table></div>
+</section>
+
+<section id="ventas" class="page">
+<h2>Venta de terneros</h2>
+<form id="fVenta">
+<div class="grid">
+<label>Fecha de venta<input name="fecha" type="date" required></label>
+<label>Ternero N.º<select name="numero" id="selVenta"></select></label>
+<label>Peso de venta (kg)<input name="peso" type="number" step="0.01"></label>
+<label>Precio de venta (Bs)<input name="monto" type="number" step="0.01" required></label>
+<label>Comprador<input name="comprador" placeholder="Nombre del comprador"></label>
+</div>
+<button class="primary">Registrar venta</button>
+</form>
+<div class="tablebox"><table><thead><tr><th>Fecha</th><th>Ternero</th><th>Peso venta</th><th>Precio</th><th>Comprador</th><th></th></tr></thead><tbody id="tVentas"></tbody></table></div>
+</section>
+</main>
+
+<script>
+const KEY='ternerosSimpleV1';
+let db=JSON.parse(localStorage.getItem(KEY)||'{"terneros":[],"gastos":[],"ventas":[]}');
+const money=n=>'Bs '+Number(n||0).toLocaleString('es-BO',{minimumFractionDigits:2});
+const today=()=>new Date().toISOString().slice(0,10);
+document.querySelectorAll('input[type=date]').forEach(x=>x.value=today());
+
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render();}
+function go(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');render();}
+function del(arr,i){if(confirm('¿Eliminar este registro?')){db[arr].splice(i,1);save();}}
+
+document.getElementById('fTernero').onsubmit=e=>{
+ e.preventDefault();let f=new FormData(e.target), n=+f.get('numero');
+ if(db.terneros.length>=10 && !db.terneros.some(x=>x.numero===n)){alert('Ya tienes registrados 10 terneros.');return}
+ if(db.terneros.some(x=>x.numero===n)){alert('Ese número de ternero ya está registrado.');return}
+ db.terneros.push({numero:n,nombre:f.get('nombre'),fecha:f.get('fecha'),peso:+f.get('peso'),costo:+f.get('costo'),estado:f.get('estado')});
+ e.target.reset();e.target.querySelector('[name=fecha]').value=today();save();
+};
+document.getElementById('fGasto').onsubmit=e=>{
+ e.preventDefault();let f=new FormData(e.target);
+ db.gastos.push({fecha:f.get('fecha'),numero:+f.get('numero'),tipo:f.get('tipo'),desc:f.get('desc'),monto:+f.get('monto')});
+ e.target.reset();e.target.querySelector('[name=fecha]').value=today();save();
+};
+document.getElementById('fVenta').onsubmit=e=>{
+ e.preventDefault();let f=new FormData(e.target), n=+f.get('numero');
+ db.ventas.push({fecha:f.get('fecha'),numero:n,peso:+f.get('peso')||0,monto:+f.get('monto'),comprador:f.get('comprador')});
+ let t=db.terneros.find(x=>x.numero===n);if(t)t.estado='Vendido';
+ e.target.reset();e.target.querySelector('[name=fecha]').value=today();save();
+};
+
+function render(){
+ tTerneros.innerHTML=db.terneros.map((x,i)=>`<tr><td>${x.numero}</td><td>${x.nombre}</td><td>${x.fecha}</td><td>${x.peso} kg</td><td>${money(x.costo)}</td><td>${x.estado}</td><td><button class="del" onclick="del('terneros',${i})">Eliminar</button></td></tr>`).join('');
+ tGastos.innerHTML=db.gastos.map((x,i)=>`<tr><td>${x.fecha}</td><td>${x.numero}</td><td>${x.tipo}</td><td>${x.desc||''}</td><td>${money(x.monto)}</td><td><button class="del" onclick="del('gastos',${i})">Eliminar</button></td></tr>`).join('');
+ tVentas.innerHTML=db.ventas.map((x,i)=>`<tr><td>${x.fecha}</td><td>${x.numero}</td><td>${x.peso?x.peso+' kg':''}</td><td>${money(x.monto)}</td><td>${x.comprador||''}</td><td><button class="del" onclick="del('ventas',${i})">Eliminar</button></td></tr>`).join('');
+ const compras=db.terneros.reduce((a,x)=>a+x.costo,0), gastos=db.gastos.reduce((a,x)=>a+x.monto,0), ventas=db.ventas.reduce((a,x)=>a+x.monto,0);
+ nTotal.textContent=db.terneros.length+' / 10';nEngorde.textContent=db.terneros.filter(x=>x.estado==='En engorde').length;nVendidos.textContent=db.terneros.filter(x=>x.estado==='Vendido').length;
+ totalCompras.textContent=money(compras);totalGastos.textContent=money(gastos);totalVentas.textContent=money(ventas);resultado.textContent=money(ventas-compras-gastos);
+ const opts=db.terneros.map(x=>`<option value="${x.numero}">${x.numero} - ${x.nombre}</option>`).join('');
+ selGasto.innerHTML=opts;selVenta.innerHTML=opts;
+}
+render();
+</script>
+</body>
+</html>
